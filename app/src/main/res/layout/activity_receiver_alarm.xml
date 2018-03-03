@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:gravity="center" >
+
+    <ImageView
+        android:id="@+id/tsunami_sign"
+        android:contentDescription="@string/tsunami_sign"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/iso_tsunami_msign" />
+
+    <TextView
+        android:id="@+id/tsunami_alarm_info"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="32sp"
+        android:textAlignment="center"
+        android:layout_below="@+id/tsunami_sign"
+        android:layout_centerInParent="true"/>
+
+    <Button
+        android:id="@+id/stopAlarm"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/stop_alarm"
+        android:textSize="28sp"
+        android:layout_below="@+id/tsunami_alarm_info"
+        android:layout_centerInParent="true"/>
+
+</RelativeLayout>

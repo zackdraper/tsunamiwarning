@@ -1,0 +1,9 @@
+<resources>
+    <string name="ntwc_messages">Tsunami Warnings</string>
+    <string name="error">General Error: Check Internet Connection</string>
+    <string name="action_refresh">Refresh</string>
+    <string name="savedTsunamiMessages">com.example.android.savedTsunamiMessages</string>
+    <string name="stop_alarm">Stop Alarm!</string>
+    <string name="tsunami_sign">Tsunami Sign</string>
+    <string name="version_name">Beta-1</string>
+</resources>

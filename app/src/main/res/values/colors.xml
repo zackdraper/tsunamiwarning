@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorWhite">#FFFFFF</color>
+
+    <!-- Magnitude Warning Colors -->
+    <color name="warningGreen">#9066FF00</color>
+    <color name="warningYellow">#90FFFF00</color>
+    <color name="warningRed">#90FF0000</color>
+
+</resources>
