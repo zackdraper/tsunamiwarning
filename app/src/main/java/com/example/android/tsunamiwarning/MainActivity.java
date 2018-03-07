@@ -3,8 +3,12 @@ package com.example.android.tsunamiwarning;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +23,8 @@ import android.widget.TextView;
 
 import com.example.android.tsunamiwarning.TsunamiAlarm.TsunamiAlarmService;
 import com.example.android.tsunamiwarning.utilities.NetworkUtils;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -34,9 +40,10 @@ public class MainActivity extends AppCompatActivity
 
     private ProgressBar mLoadingIndicator;
     private TextView mTsunamiMessage;
-
     private RecyclerView mQuakeList;
     private QuakeEventAdapter mAdapter;
+
+    private FusedLocationProviderClient mFusedLocationClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +56,43 @@ public class MainActivity extends AppCompatActivity
 
         getSupportActionBar().setIcon(R.drawable.iso_tsunami_icon);
 
-        loadNtwcMessages();
+        //getLocationData();
 
-        startTsunamiAlarm();
+        if (isNetworkAvailable()) {
+            loadNtwcMessages();
+            startTsunamiAlarm();
+        } else {
+            showErrorMessage();
+        }
 
+    }
+
+    public void getLocationData() {
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+        Location lastKnownLocation = mFusedLocationClient.getLastLocation().getResult();
+
+        if (lastKnownLocation != null) {
+            lastKnownLocation.setLatitude( 0 );
+            lastKnownLocation.setLongitude( 0 );
+        }
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("lastKnownLocation",lastKnownLocation.toString());
+        editor.apply();
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
 
         getMenuInflater().inflate(R.menu.main, menu);
-
-
         return true;
     }
 
@@ -72,7 +104,21 @@ public class MainActivity extends AppCompatActivity
         switch (itemId) {
 
             case R.id.action_refresh:
-                loadNtwcMessages();
+
+                if (isNetworkAvailable()) {
+                    loadNtwcMessages();
+                    startTsunamiAlarm();
+                } else {
+                    showErrorMessage();
+                }
+                return true;
+
+            case R.id.action_sms:
+
+                Intent intent = new Intent(this, DisplaySMSLogActivity.class);
+                //intent.putExtra(NTWC_MESSAGE, message);
+                startActivity(intent);
+
                 return true;
         }
 
@@ -95,8 +141,6 @@ public class MainActivity extends AppCompatActivity
         startActivity(intent);
     }
 
-
-
     public void loadNtwcMessages() {
         mTsunamiMessage.setVisibility(View.VISIBLE);
         mQuakeList.setVisibility(View.INVISIBLE);
@@ -105,7 +149,7 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void showNtwcMessages(String ntwcData) {
-        mTsunamiMessage.setVisibility(View.VISIBLE);
+        mTsunamiMessage.setVisibility(View.INVISIBLE);
         mQuakeList.setVisibility(View.VISIBLE);
 
         JSONObject json = new JSONObject();
@@ -186,6 +230,7 @@ public class MainActivity extends AppCompatActivity
     public void showErrorMessage() {
         mQuakeList.setVisibility(View.INVISIBLE);
         mTsunamiMessage.setVisibility(View.VISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
 
         mTsunamiMessage.setText(R.string.error);
     }

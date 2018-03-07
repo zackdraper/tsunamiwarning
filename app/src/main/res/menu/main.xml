@@ -21,8 +21,13 @@
 
     <item
         android:id="@+id/action_refresh"
-        android:icon="@drawable/ic_refresh"
         android:orderInCategory="1"
         android:title="@string/action_refresh"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_sms"
+        android:orderInCategory="1"
+        android:title="@string/action_sms"
         app:showAsAction="ifRoom"/>
 </menu>

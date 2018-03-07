@@ -1,17 +1,17 @@
 package com.example.android.tsunamiwarning;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
-import android.location.LocationManager;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
-import com.google.android.gms.location.FusedLocationProviderClient;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -29,8 +29,6 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
     private static int viewHolderCount;
 
     private ArrayList<String[]> mQuakeList;
-
-    private FusedLocationProviderClient mFusedLocationClient;
 
     public interface ListItemClickListener {
         void onListItemClick(int clickedItemIndex, String message);
@@ -75,12 +73,15 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
 
     @Override
     public void onBindViewHolder(QuakeViewHolder holder, int position) {
-        //Log.d(TAG, "#" + position);
-        holder.bind(position);
+        Context context = holder.itemView.getContext();
+
+        SharedPreferences lastKnownLocationP = PreferenceManager.getDefaultSharedPreferences(context);
+        String lastKnownLocation = lastKnownLocationP.getString("lastKnownLocation", null);
+
+        Log.d(TAG, "#" + position+" : "+lastKnownLocation);
+        holder.bind(position,lastKnownLocation);
 
         float magnitude = Float.parseFloat(mQuakeList.get(position)[0]);
-
-        Context context = holder.itemView.getContext();
 
         int backgroundColorForViewHolder = MagWarningColor(context, magnitude);
 
@@ -101,7 +102,6 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
         TextView listEventTimeView;
         TextView listEventDiscripView;
         TextView listEventDistanceView;
-        Context mContext;
 
 
         public QuakeViewHolder(View itemView) {
@@ -112,13 +112,11 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
             listEventDiscripView = itemView.findViewById(R.id.tv_event_description);
             listEventDistanceView = itemView.findViewById(R.id.tv_event_dist);
 
-            this.mContext = mContext;
-
             itemView.setOnClickListener(this);
 
         }
 
-        void bind(int listIndex) {
+        void bind(int listIndex,String lastKnownLocation) {
             //listEventMagView.setText(String.valueOf(listIndex));
             listEventMagView.setText(mQuakeList.get(listIndex)[0]);
             listEventTimeView.setText(mQuakeList.get(listIndex)[1]);
@@ -128,19 +126,20 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
             String longitude = mQuakeList.get(listIndex)[5];
 
             Location location_event = new Location("point A");
-            location_event.setLatitude( Double.parseDouble(latitude) );
-            location_event.setLongitude( Double.parseDouble(longitude) );
+            location_event.setLatitude(Double.parseDouble(latitude));
+            location_event.setLongitude(Double.parseDouble(longitude));
 
             //mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
             //Task location_phone_task = mFusedLocationClient.getLastLocation();
             //Location location_phone = location_phone_task.g;
 
-            String locationProvider = LocationManager.NETWORK_PROVIDER;
-            LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
-            Location lastKnownLocation = locationManager.getLastKnownLocation(locationProvider);
-
-            float distanceInMeters = location_event.distanceTo(lastKnownLocation);
-
+            Double distanceInMeters = 0.0;
+            try {
+                //Double distanceInMeters = location_event.distanceTo(lastKnownLocation);
+            } catch (Exception e) {
+                e.printStackTrace();
+                //Float distanceInMeters = 1;
+            }
             String distance = String.format(Locale.getDefault()
                     ,"%.0f km",distanceInMeters/1000 );
 

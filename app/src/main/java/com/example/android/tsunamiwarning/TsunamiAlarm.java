@@ -80,9 +80,9 @@ public final class TsunamiAlarm {
                 String locationNew = newEvent.getString("quakeLocation");
 
                 if (locationOld.equalsIgnoreCase(locationNew)) {
-                    //Log.d(TAG, "No New Quakes");
+                    Log.d(TAG, "No New Quakes");
                 } else {
-                    //Log.d(TAG, "New Quake!");
+                    Log.d(TAG, "New Quake!");
 
                     String magnitude = newEvent.getString("magnitude");
                     String datestamp = newEvent.getString("issueTime");

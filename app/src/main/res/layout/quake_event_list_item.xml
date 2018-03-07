@@ -9,12 +9,12 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:textSize="36sp"/>
 
     <TextView
         android:id="@+id/tv_event_dist"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -22,8 +22,8 @@
 
     <TextView
         android:id="@+id/tv_event_time"
-        android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
+        android:gravity="top"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAlignment="textEnd"
@@ -31,9 +31,10 @@
 
     <TextView
         android:id="@+id/tv_event_description"
-        android:layout_alignParentBottom="true"
+        android:gravity="top"
         android:layout_alignParentRight="true"
-        android:layout_width="wrap_content"
+        android:layout_below="@+id/tv_event_time"
+        android:layout_width="300dp"
         android:layout_height="wrap_content"
         android:textAlignment="textEnd"
         android:textSize="20sp" />

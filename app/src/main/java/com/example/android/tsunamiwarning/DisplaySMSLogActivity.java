@@ -1,90 +1,97 @@
 package com.example.android.tsunamiwarning;
 
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-
-import com.example.android.tsunamiwarning.utilities.NetworkUtils;
-
-import java.net.URL;
 
 /**
  * Created by zackdraper on 14/02/18.
  */
 
-public class DisplayMessageActivity extends AppCompatActivity {
+public class DisplaySMSLogActivity extends AppCompatActivity {
 
-    private static final String ntwc_domain = "https://www.tsunami.gov";
-
-    private TextView mTsunamiMessageFull;
-
-    private ProgressBar mProgressBar;
+    private ProgressBar mLoadingIndicator;
+    private TextView mTsunamiMessage;
+    private RecyclerView mQuakeList;
+    private QuakeEventAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message_display);
-        Intent intent = getIntent();
-        String message = intent.getStringExtra(MainActivity.NTWC_MESSAGE);
+        setContentView(R.layout.activity_sms_log_display);
 
-        mTsunamiMessageFull = (TextView) findViewById(R.id.detailedMessage);
-        mProgressBar = (ProgressBar) findViewById(R.id.pb_tsunami_gram);
+        //Intent intent = getIntent();
+        //String message = intent.getStringExtra(MainActivity.NTWC_MESSAGE);
 
-        new fetchTsunamiGram().execute(ntwc_domain+message);
-    }
+        mTsunamiMessage = (TextView) findViewById(R.id.tsunami_messages_sms);
+        mQuakeList = (RecyclerView) findViewById(R.id.quake_event_list_sms);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_tsunami_messages_sms);
 
-    public void displayMessage(String message) {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mTsunamiMessageFull.setVisibility(View.VISIBLE);
+        mTsunamiMessage.setMovementMethod(LinkMovementMethod.getInstance());
 
-        mTsunamiMessageFull.setText(message);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+        mTsunamiMessage.setText(
+                "Sign up for NTWC Warning via Twitter texts," +
+                        " for those times when you don't have any data\n\n"+
+                        "Text 'follow NWS_NTWC' to your region/providers Twitter short code\n\n"
+        );
+
     }
 
     public void showErrorMessage() {
-        mProgressBar.setVisibility(View.INVISIBLE);
-        mTsunamiMessageFull.setVisibility(View.VISIBLE);
+        mQuakeList.setVisibility(View.INVISIBLE);
+        mTsunamiMessage.setVisibility(View.VISIBLE);
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-        mTsunamiMessageFull.setText(R.string.error);
+        mTsunamiMessage.setText(R.string.error);
     }
 
-    public class fetchTsunamiGram extends AsyncTask<String, Void, String> {
+    public void showSMSMessages(String ntwcData) {
+        mTsunamiMessage.setVisibility(View.INVISIBLE);
+        mQuakeList.setVisibility(View.VISIBLE);
+
+        //ArrayList<String[]> strArr = new ArrayList<String[]>();
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mQuakeList.setLayoutManager(layoutManager);
+
+        mQuakeList.setHasFixedSize(true);
+
+        //mAdapter = new QuakeEventAdapter(strArr, this);
+        //mQuakeList.setAdapter(mAdapter);
+
+    }
+
+    public class fetchSMSMessages extends AsyncTask<String, Void, String> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            mProgressBar.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected String doInBackground(String... messageURL) {
+        protected String doInBackground(String... params) {
 
-            URL urlMessage = NetworkUtils.getStringUrl(messageURL[0]);
-
-            try {
-                String NtwcResponse = NetworkUtils
-                        .getResponseFromHttpUrl(urlMessage);
-                //String jsonNtwcResponse = "TEst String";
-                return NtwcResponse;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
+            return "";
         }
 
         @Override
         protected void onPostExecute(String ntwcData) {
-            mProgressBar.setVisibility(View.INVISIBLE);
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+
             if (ntwcData.length() > 5) {
-                displayMessage(ntwcData);
+                showSMSMessages(ntwcData);
             } else {
                 showErrorMessage();
             }
         }
 
     }
-
 }
