@@ -22,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.tsunamiwarning.TsunamiAlarm.TsunamiAlarmService;
+import com.example.android.tsunamiwarning.utilities.DividerItemDecoration;
 import com.example.android.tsunamiwarning.utilities.NetworkUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -164,6 +165,11 @@ public class MainActivity extends AppCompatActivity
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mQuakeList.setLayoutManager(layoutManager);
+
+        // add the decoration to the recyclerView
+        com.example.android.tsunamiwarning.utilities.DividerItemDecoration decoration =
+                new DividerItemDecoration(this, R.color.colorPrimaryDark, 2f);
+        mQuakeList.addItemDecoration(decoration);
 
         mQuakeList.setHasFixedSize(true);
 

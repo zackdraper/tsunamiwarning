@@ -88,6 +88,7 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
         //Log.d("ADebugTag", "Value: " + magnitude + " : " +backgroundColorForViewHolder);
 
         holder.itemView.setBackgroundColor(backgroundColorForViewHolder);
+
     }
 
     @Override
