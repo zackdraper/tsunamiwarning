@@ -6,6 +6,7 @@ import android.location.Location;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,8 +14,12 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * Created by zackdraper on 07/02/18.
@@ -103,7 +108,7 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
         TextView listEventTimeView;
         TextView listEventDiscripView;
         TextView listEventDistanceView;
-
+        TextView listEventTimeAgoView;
 
         public QuakeViewHolder(View itemView) {
             super(itemView);
@@ -120,8 +125,42 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
         void bind(int listIndex,String lastKnownLocation) {
             //listEventMagView.setText(String.valueOf(listIndex));
             listEventMagView.setText(mQuakeList.get(listIndex)[0]);
-            listEventTimeView.setText(mQuakeList.get(listIndex)[1]);
             listEventDiscripView.setText(mQuakeList.get(listIndex)[2]);
+
+            /** Time **/
+
+            String eventDate = mQuakeList.get(listIndex)[1];
+
+            DateFormat df = DateFormat.getInstance();
+            df.setTimeZone(TimeZone.getTimeZone("GMT"));
+            String currentDate = df.format(new Date());
+
+            SimpleDateFormat dateFormat1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            SimpleDateFormat dateFormat2 = new SimpleDateFormat("MM/dd/yy HH:mm aa");
+            Date eventTime = new Date();
+            Date currentTime = new Date();
+
+            try {
+                eventTime = dateFormat1.parse(eventDate);
+                currentTime = dateFormat2.parse(currentDate);
+            } catch (java.text.ParseException e) {
+                e.printStackTrace();
+            }
+
+            long difference =  currentTime.getTime() - eventTime.getTime();
+            long days = (difference / (1000*60*60*24));
+            long hours = ((difference - (1000*60*60*24*days)) / (1000*60*60));
+            long min = (difference - (1000*60*60*24*days) - (1000*60*60*hours)) / (1000*60);
+            //hours = (hours < 0 ? -hours : hours);
+
+            String sourceString = "<b>"+String.valueOf(days)+"</b> d <b>"+
+                    String.valueOf(hours)+"</b> h <b>"+
+                    String.valueOf(min)+"</b> m Ago";
+
+            listEventTimeView.setText(Html.fromHtml(sourceString));
+            //listEventTimeAgoView.setText(currentTime.toString());
+
+            /** Location **/
 
             String latitude = mQuakeList.get(listIndex)[4];
             String longitude = mQuakeList.get(listIndex)[5];
@@ -142,9 +181,9 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
                 //Float distanceInMeters = 1;
             }
             String distance = String.format(Locale.getDefault()
-                    ,"%.0f km",distanceInMeters/1000 );
+                    ,"<b>%.0f</b> km",distanceInMeters/1000 );
 
-            listEventDistanceView.setText(distance);
+            listEventDistanceView.setText(Html.fromHtml(distance));
         }
 
         @Override
