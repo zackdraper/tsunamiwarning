@@ -1,5 +1,6 @@
 package com.example.android.tsunamiwarning;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
@@ -7,6 +8,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.text.Spanned;
@@ -16,17 +18,18 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.android.tsunamiwarning.utilities.DividerItemDecoration;
 
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * Created by zackdraper on 14/02/18.
  */
 
-public class DisplaySMSLogActivity extends AppCompatActivity {
+public class DisplaySMSLogActivity extends AppCompatActivity
+        implements QuakeEventAdapter.ListItemClickListener {
 
     private ProgressBar mLoadingIndicator;
     private TextView mTsunamiMessage;
@@ -43,6 +46,21 @@ public class DisplaySMSLogActivity extends AppCompatActivity {
         if (true) {
             new fetchSMSMessages().execute();
         }
+    }
+
+    @Override
+    public void onListItemClick(int clickedItemIndex, String tweet) {
+
+        //if (mToast != null) {
+        //    mToast.cancel();
+        //}
+
+        //String toastMessage = "Item #" + clickedItemIndex + " clicked.";
+        //mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
+        //mToast.show();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
+        startActivity(intent);
     }
 
     public void showEntryMessage() {
@@ -86,49 +104,46 @@ public class DisplaySMSLogActivity extends AppCompatActivity {
         }
     };
 
-    public void showSMSMessages(String SMSData) {
-        mTsunamiMessage.setVisibility(View.VISIBLE);
-        mSMSList.setVisibility(View.INVISIBLE);
+    public void showSMSMessages(ArrayList<String[]> SMSData) {
+        mTsunamiMessage.setVisibility(View.INVISIBLE);
+        mSMSList.setVisibility(View.VISIBLE);
 
-        JSONObject events = new JSONObject();
+        //mTsunamiMessage.setText(SMSData.toString());
 
-        try {
-            events = new JSONObject(SMSData);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        };
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        mSMSList.setLayoutManager(layoutManager);
 
-        List<String> items = Arrays.asList(SMSData.split("\\s*,\\s*"));
+        // add the decoration to the recyclerView
+        com.example.android.tsunamiwarning.utilities.DividerItemDecoration decoration =
+                new DividerItemDecoration(this, R.color.colorPrimaryDark, 2f);
+        mSMSList.addItemDecoration(decoration);
 
-        mTsunamiMessage.setText(items.toString());
+        mSMSList.setHasFixedSize(true);
 
-        //ArrayList<String[]> strArr = new ArrayList<String[]>();
-
-        //LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        //mSMSList.setLayoutManager(layoutManager);
-
-        //mSMSList.setHasFixedSize(true);
-
-        //mAdapter = new QuakeEventAdapter(strArr, this);
-        //mSMSList.setAdapter(mAdapter);
+        mAdapter = new QuakeEventAdapter(SMSData, this);
+        mSMSList.setAdapter(mAdapter);
 
     }
 
-    public class fetchSMSMessages extends AsyncTask<String, Void, String> {
+    public class fetchSMSMessages extends AsyncTask<String, Void, ArrayList<String[]>> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
-            //mLoadingIndicator.setVisibility(View.VISIBLE);
+            mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
-        protected String doInBackground(String... params) {
+        protected ArrayList<String[]> doInBackground(String... params) {
 
             StringBuilder smsBuilder = new StringBuilder();
             final String SMS_URI_INBOX = "content://sms/inbox";
             final String SMS_URI_ALL = "content://sms/";
-            smsBuilder.append("[");
+            smsBuilder.append("{");
+
+            String[] datalist = new String[] {};
+            ArrayList<String[]> data = new ArrayList<String[]>();
+
             try {
                 Uri uri = Uri.parse(SMS_URI_INBOX);
                 String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
@@ -140,19 +155,36 @@ public class DisplaySMSLogActivity extends AppCompatActivity {
                     int index_Date = cur.getColumnIndex("date");
                     int index_Type = cur.getColumnIndex("type");
                     do {
-                        String strAddress = cur.getString(index_Address);
-                        int intPerson = cur.getInt(index_Person);
+                        //String strAddress = cur.getString(index_Address);
+                        //int intPerson = cur.getInt(index_Person);
                         String strbody = cur.getString(index_Body);
                         long longDate = cur.getLong(index_Date);
-                        int int_Type = cur.getInt(index_Type);
+                        //int int_Type = cur.getInt(index_Type);
+                        String message_tag = strbody.substring(0,9);
 
+                        if (message_tag.equalsIgnoreCase("@nws_ntwc") ) {
+                            int idx_mag = strbody.indexOf(" M",9);
+                            String magnitude = strbody.substring(idx_mag+2, idx_mag + 5);
 
-                        smsBuilder.append("\"" + strAddress + "\",");
-                        smsBuilder.append("\"" + intPerson + "\",");
-                        smsBuilder.append("\"" + strbody + "\",");
-                        smsBuilder.append("\"" + longDate + "\",");
-                        smsBuilder.append("\"" + int_Type + "\"");
-                        smsBuilder.append("],[");
+                            int idx_end = strbody.indexOf("NTWC",10);
+                            String location = strbody.substring(idx_mag + 6, idx_end-2);
+
+                            String urlFull = "m.twitter.com/NWS_NTWC";
+                            String latitude = "-99";
+                            String longitude = "-99";
+
+                            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                            Date smsTime = new Date(longDate);
+
+                            String smsTime_str;
+
+                            smsTime_str = df.format(smsTime);
+
+                            datalist = new String[]{magnitude, smsTime_str, location, urlFull, latitude, longitude};
+
+                            data.add(datalist);
+                        }
+
                     } while (cur.moveToNext());
 
                     if (!cur.isClosed()) {
@@ -160,20 +192,21 @@ public class DisplaySMSLogActivity extends AppCompatActivity {
                         cur = null;
                     }
                 } else {
-                    smsBuilder.append("no result!");
+                    datalist = new String[] {"","","No Result","","",""};
+                    data.add(datalist);
                 } // end if
-                smsBuilder.append("]");
-                return smsBuilder.toString();
+
+                return data;
             } catch (SQLiteException ex) {
                 Log.d("SQLiteException", ex.getMessage());
-                return smsBuilder.toString();
+                return data;
             }
 
         }
 
         @Override
-        protected void onPostExecute(String SMSData) {
-            //mLoadingIndicator.setVisibility(View.INVISIBLE);
+        protected void onPostExecute(ArrayList<String[]> SMSData) {
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
 
             showSMSMessages(SMSData);
         }

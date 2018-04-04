@@ -31,8 +31,6 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
 
     final private ListItemClickListener mOnClickListener;
 
-    private static int viewHolderCount;
-
     private ArrayList<String[]> mQuakeList;
 
     public interface ListItemClickListener {
@@ -42,7 +40,6 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
     public QuakeEventAdapter(ArrayList<String[]> quakeEventsArr, ListItemClickListener listener) {
         mQuakeList = quakeEventsArr;
         mOnClickListener = listener;
-        viewHolderCount = 0;
     }
 
     public int MagWarningColor(Context context, float magnitude) {
@@ -70,8 +67,6 @@ public class QuakeEventAdapter extends RecyclerView.Adapter<QuakeEventAdapter.Qu
         QuakeViewHolder viewHolder = new QuakeViewHolder(view);
 
         //viewHolder.listEventMagView.setText(mQuakeList.get(viewHolderCount)[1]);
-
-        viewHolderCount++;
 
         return viewHolder;
     }
