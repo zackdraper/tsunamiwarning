@@ -30,4 +30,10 @@
         android:orderInCategory="1"
         android:title="@string/action_sms"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/settings"
+        android:orderInCategory="1"
+        android:title="@string/settings"
+        app:showAsAction="never"/>
 </menu>

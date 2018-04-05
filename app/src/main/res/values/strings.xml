@@ -3,9 +3,16 @@
     <string name="error">General Error: Check Internet Connection</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_sms">SMS</string>
+    <string name="settings">Settings</string>
     <string name="savedTsunamiMessages">com.example.android.savedTsunamiMessages</string>
     <string name="stop_alarm">Stop Alarm!</string>
     <string name="tsunami_sign">Tsunami Sign</string>
     <string name="version_name">Beta-1</string>
+    <string name="activate_alarm">Activate Alarm System</string>
+    <string name="activate_alarm_cd">An alarm will go off to get your attention or wake you up if a Tsunami Warning is issued.</string>
+
     <string name="twitter_codes"><a href="http://www.google.com">Google</a></string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

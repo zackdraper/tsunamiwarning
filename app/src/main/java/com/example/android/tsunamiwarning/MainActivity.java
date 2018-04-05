@@ -1,5 +1,8 @@
 package com.example.android.tsunamiwarning;
 
+import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -15,11 +18,13 @@ import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.tsunamiwarning.TsunamiAlarm.TsunamiAlarmService;
 import com.example.android.tsunamiwarning.utilities.DividerItemDecoration;
@@ -59,9 +64,12 @@ public class MainActivity extends AppCompatActivity
 
         //getLocationData();
 
+        TsunamiAlarm_beta tsunamiAlarm = new TsunamiAlarm_beta();
+
         if (isNetworkAvailable()) {
             loadNtwcMessages();
-            startTsunamiAlarm();
+            //startTsunamiAlarm();
+            tsunamiAlarm.setAlarm(this);
         } else {
             showErrorMessage();
         }
@@ -108,7 +116,7 @@ public class MainActivity extends AppCompatActivity
 
                 if (isNetworkAvailable()) {
                     loadNtwcMessages();
-                    startTsunamiAlarm();
+                    //startTsunamiAlarm();
                 } else {
                     showErrorMessage();
                 }
@@ -116,10 +124,14 @@ public class MainActivity extends AppCompatActivity
 
             case R.id.action_sms:
 
-                Intent intent = new Intent(this, DisplaySMSLogActivity.class);
-                //intent.putExtra(NTWC_MESSAGE, message);
-                startActivity(intent);
+                Intent intent_sms = new Intent(this, DisplaySMSLogActivity.class);
+                startActivity(intent_sms);
+                return true;
 
+            case R.id.settings:
+
+                Intent intent_settings = new Intent(this, SettingsActivity.class);
+                startActivity(intent_settings);
                 return true;
         }
 
@@ -300,6 +312,5 @@ public class MainActivity extends AppCompatActivity
             //Log.d(TAG, "Job not scheduled");
         }
     }
-
 
 }
