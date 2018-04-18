@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <intent
+        android:targetPackage="com.android.tsunamialarm"
+        android:targetClass="com.android.tsunamialarm.AlarmReceiverActivity"/>
+    <PreferenceCategory
+        android:title="Alarm Settings">
+
+        <CheckBoxPreference
+            android:key="alarm_on"
+            android:summary="Alarm will activate when it receives warning message."
+            android:title="Turn on Alarm"
+            android:defaultValue="false" />
+        <!--
+        <SeekBarPreference
+            android:key="mag_limit"
+            android:title="Magnitude Limit"
+            android:summary="Set a magnitude limit for alarm to go off."
+            android:max="10"
+            android:defaultValue="0" />
+            -->
+
+        <PreferenceScreen
+            android:title="Test Alarm"
+            android:summary="See what the alarm will look like when activated.">
+
+            <intent
+                android:action="com.android.tsunamialarm.AlarmReceiverActivity">
+                <extra
+                    android:name="tsunami_info"
+                    android:value="9.5\nLocation Description">
+                </extra>
+            </intent>
+
+        </PreferenceScreen>
+
+        <ListPreference
+            android:key="twitter_code"
+            android:title="Twitter SMS Code"
+            android:summary="Set the Twitter code for the SMS alarm to listen for."
+            android:entries="@array/TwitterCodes"
+            android:entryValues="@array/TwitterCodes"/>
+
+    </PreferenceCategory>
+</PreferenceScreen>

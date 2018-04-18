@@ -41,6 +41,10 @@
         </activity>
         <activity android:name=".AlarmReceiverActivity"
             android:parentActivityName=".MainActivity">
+            <intent-filter>
+                <action android:name="com.android.tsunamialarm.AlarmReceiverActivity" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".MainActivity" />
@@ -56,6 +60,7 @@
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
         <receiver android:process=":remote" android:name=".TsunamiAlarm_beta"></receiver>
+
     </application>
 
 </manifest>
