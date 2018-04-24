@@ -43,6 +43,7 @@ public class MainActivity extends AppCompatActivity
         implements QuakeEventAdapter.ListItemClickListener {
 
     public static final String NTWC_MESSAGE = "com.example.MESSAGE";
+    private static final String ntwc_domain = "https://www.tsunami.gov";
 
     private ProgressBar mLoadingIndicator;
     private TextView mTsunamiMessage;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        View mDescription = findViewById(R.id.description_item);
         mTsunamiMessage = (TextView) findViewById(R.id.tsunami_messages);
         mQuakeList = (RecyclerView) findViewById(R.id.quake_event_list);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_tsunami_messages);
@@ -67,6 +69,7 @@ public class MainActivity extends AppCompatActivity
         TsunamiAlarm_beta tsunamiAlarm = new TsunamiAlarm_beta();
 
         if (isNetworkAvailable()) {
+            quakeListDiscription(mDescription);
             loadNtwcMessages();
             //startTsunamiAlarm();
             tsunamiAlarm.setAlarm(this);
@@ -150,7 +153,7 @@ public class MainActivity extends AppCompatActivity
         //mToast.show();
 
         Intent intent = new Intent(this, DisplayMessageActivity.class);
-        intent.putExtra(NTWC_MESSAGE, message);
+        intent.putExtra(NTWC_MESSAGE, ntwc_domain+message);
         startActivity(intent);
     }
 
@@ -159,6 +162,21 @@ public class MainActivity extends AppCompatActivity
         mQuakeList.setVisibility(View.INVISIBLE);
 
         new fetchNtwcMessages().execute();
+    }
+
+    public void quakeListDiscription(View mDescription) {
+
+        TextView event_discrip = (TextView) mDescription.findViewById(R.id.tv_event_description);
+        event_discrip.setText("Event Description");
+
+        TextView event_mag = (TextView) mDescription.findViewById(R.id.tv_event_mag);
+        event_mag.setText("Magnitude");
+
+        TextView event_dist = (TextView) mDescription.findViewById(R.id.tv_event_dist);
+        event_dist.setText("Distance");
+
+        TextView event_time = (TextView) mDescription.findViewById(R.id.tv_event_time);
+        event_time.setText("Time Since Event");
     }
 
     public void showNtwcMessages(String ntwcData) {

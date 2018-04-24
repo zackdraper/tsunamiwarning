@@ -1,12 +1,17 @@
 package com.example.android.tsunamiwarning;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteException;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +36,8 @@ import java.util.Date;
 public class DisplaySMSLogActivity extends AppCompatActivity
         implements QuakeEventAdapter.ListItemClickListener {
 
+    public static final String NTWC_MESSAGE = "com.example.MESSAGE";
+
     private ProgressBar mLoadingIndicator;
     private TextView mTsunamiMessage;
     private RecyclerView mSMSList;
@@ -43,24 +50,41 @@ public class DisplaySMSLogActivity extends AppCompatActivity
 
         showEntryMessage();
 
-        if (true) {
-            new fetchSMSMessages().execute();
+        SharedPreferences twittercode = PreferenceManager.getDefaultSharedPreferences(this);
+        String twitcode = twittercode.getString("twitter_code", null);
+
+        final String SMS_URI_INBOX = "content://sms/inbox";
+        Uri uri = Uri.parse(SMS_URI_INBOX);
+        Cursor cur = getContentResolver().query(uri, null, "address='"+twitcode+"'", null, null);
+
+        if (cur.getCount() > 0) {
+            new fetchSMSMessages().execute(twitcode);
         }
     }
 
     @Override
     public void onListItemClick(int clickedItemIndex, String tweet) {
 
-        //if (mToast != null) {
-        //    mToast.cancel();
-        //}
+        if (isNetworkAvailable()) {
 
-        //String toastMessage = "Item #" + clickedItemIndex + " clicked.";
-        //mToast = Toast.makeText(this, toastMessage, Toast.LENGTH_LONG);
-        //mToast.show();
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
+            startActivity(browserIntent);
 
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
-        startActivity(intent);
+        } else {
+            mTsunamiMessage = (TextView) findViewById(R.id.tsunami_messages_sms);
+            mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_tsunami_messages_sms);
+
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+            mTsunamiMessage.setText("No Internet Connection");
+
+        }
+    }
+
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
     }
 
     public void showEntryMessage() {
@@ -68,11 +92,11 @@ public class DisplaySMSLogActivity extends AppCompatActivity
         mSMSList = (RecyclerView) findViewById(R.id.quake_event_list_sms);
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_tsunami_messages_sms);
 
-        Spanned linkText = Html.fromHtml("Sign up for NTWC Warning via Twitter texts," +
-                " just for those times when you don't have any data.<br><br>"+
+        Spanned linkText = Html.fromHtml("Sign up for NTWC Warnings via sms texts," +
+                " for those times when you don't have any data, but still have cell reception.<br><br>"+
                 "Text 'follow NWS_NTWC' to your region & providers "+
                 "<a href='https://help.twitter.com/en/using-twitter/supported-mobile-carriers'>" +
-                "Twitter short code</a><br><br>"+
+                "Twitter short code</a> and then update your settings.<br><br>"+
                 "<img src='ca.png' /> 21212<br>"+
                 "<img src='us.png' /> 40404", new ImageGetter(), null
         );
@@ -134,11 +158,11 @@ public class DisplaySMSLogActivity extends AppCompatActivity
         }
 
         @Override
-        protected ArrayList<String[]> doInBackground(String... params) {
+        protected ArrayList<String[]> doInBackground(String... twitcode) {
 
             StringBuilder smsBuilder = new StringBuilder();
             final String SMS_URI_INBOX = "content://sms/inbox";
-            final String SMS_URI_ALL = "content://sms/";
+            //final String SMS_URI_ALL = "content://sms/";
             smsBuilder.append("{");
 
             String[] datalist = new String[] {};
@@ -147,7 +171,9 @@ public class DisplaySMSLogActivity extends AppCompatActivity
             try {
                 Uri uri = Uri.parse(SMS_URI_INBOX);
                 String[] projection = new String[]{"_id", "address", "person", "body", "date", "type"};
-                Cursor cur = getContentResolver().query(uri, projection, "address='21212'", null, "date desc");
+
+                //twitcode = new String[] {"21212"};
+                Cursor cur = getContentResolver().query(uri, projection, "address='"+twitcode[0]+"'", null, "date desc");
                 if (cur.moveToFirst()) {
                     int index_Address = cur.getColumnIndex("address");
                     int index_Person = cur.getColumnIndex("person");

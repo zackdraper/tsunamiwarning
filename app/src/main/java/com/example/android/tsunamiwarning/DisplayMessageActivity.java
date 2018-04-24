@@ -18,8 +18,6 @@ import java.net.URL;
 
 public class DisplayMessageActivity extends AppCompatActivity {
 
-    private static final String ntwc_domain = "https://www.tsunami.gov";
-
     private TextView mTsunamiMessageFull;
 
     private ProgressBar mProgressBar;
@@ -28,13 +26,16 @@ public class DisplayMessageActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_display);
-        Intent intent = getIntent();
-        String message = intent.getStringExtra(MainActivity.NTWC_MESSAGE);
 
         mTsunamiMessageFull = (TextView) findViewById(R.id.detailedMessage);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_tsunami_gram);
 
-        new fetchTsunamiGram().execute(ntwc_domain+message);
+        Intent intent = getIntent();
+
+        String message = intent.getStringExtra(MainActivity.NTWC_MESSAGE);
+
+        new fetchTsunamiGram().execute(message);
+
     }
 
     public void displayMessage(String message) {
