@@ -29,7 +29,7 @@
         android:id="@+id/action_sms"
         android:orderInCategory="1"
         android:title="@string/action_sms"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="never"/>
 
     <item
         android:id="@+id/settings"

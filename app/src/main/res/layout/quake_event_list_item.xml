@@ -8,20 +8,20 @@
     <TextView
         android:id="@+id/tv_event_mag"
         android:layout_alignParentTop="true"
-        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
         android:layout_width="wrap_content"
-        android:layout_height="100dp"
+        android:layout_height="wrap_content"
         android:textSize="36sp"
         android:padding="5dp"/>
 
     <TextView
         android:id="@+id/tv_event_dist"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentStart="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
-        android:padding="5dp"/>
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/tv_event_mag"
+        android:padding="7dp"
+        android:textSize="20sp" />
 
     <TextView
         android:id="@+id/tv_event_description"
@@ -36,6 +36,7 @@
     <TextView
         android:id="@+id/tv_event_time"
         android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/tv_event_dist"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_event_description"

@@ -48,6 +48,8 @@ public class DisplaySMSLogActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sms_log_display);
 
+        View mDescription = findViewById(R.id.description_item_sms);
+
         showEntryMessage();
 
         SharedPreferences twittercode = PreferenceManager.getDefaultSharedPreferences(this);
@@ -58,8 +60,24 @@ public class DisplaySMSLogActivity extends AppCompatActivity
         Cursor cur = getContentResolver().query(uri, null, "address='"+twitcode+"'", null, null);
 
         if (cur.getCount() > 0) {
+            quakeListDiscription(mDescription);
             new fetchSMSMessages().execute(twitcode);
         }
+    }
+
+    public void quakeListDiscription(View mDescription) {
+
+        TextView event_discrip = (TextView) mDescription.findViewById(R.id.tv_event_description);
+        event_discrip.setText("Event Description");
+
+        TextView event_mag = (TextView) mDescription.findViewById(R.id.tv_event_mag);
+        event_mag.setText("Magnitude");
+
+        TextView event_dist = (TextView) mDescription.findViewById(R.id.tv_event_dist);
+        event_dist.setText("Distance");
+
+        TextView event_time = (TextView) mDescription.findViewById(R.id.tv_event_time);
+        event_time.setText("Time Since Event");
     }
 
     @Override

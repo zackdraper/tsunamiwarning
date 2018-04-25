@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mTsunamiMessage;
     private RecyclerView mQuakeList;
     private QuakeEventAdapter mAdapter;
+    private float iteration;
 
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -56,6 +57,8 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        iteration = 0;
 
         View mDescription = findViewById(R.id.description_item);
         mTsunamiMessage = (TextView) findViewById(R.id.tsunami_messages);
@@ -196,10 +199,13 @@ public class MainActivity extends AppCompatActivity
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         mQuakeList.setLayoutManager(layoutManager);
 
-        // add the decoration to the recyclerView
-        com.example.android.tsunamiwarning.utilities.DividerItemDecoration decoration =
-                new DividerItemDecoration(this, R.color.colorPrimaryDark, 2f);
-        mQuakeList.addItemDecoration(decoration);
+        if (iteration == 0) {
+            // add the decoration to the recyclerView
+            com.example.android.tsunamiwarning.utilities.DividerItemDecoration decoration =
+                    new DividerItemDecoration(this, R.color.colorPrimaryDark, 2f);
+            mQuakeList.addItemDecoration(decoration);
+            iteration = iteration + 1;
+        }
 
         mQuakeList.setHasFixedSize(true);
 
@@ -240,7 +246,7 @@ public class MainActivity extends AppCompatActivity
 
                 String urlFull = url+"/"+wmoid+"/"+wmoid+".txt";
 
-                datalist = new String[] {magnitude,datestamp,location,urlFull,latitude,longitude};
+                datalist = new String[] {magnitude,datestamp,location+"\n",urlFull,latitude,longitude};
 
                 //Log.d("ADebugTag", "Value: " + magnitude.toString()+datestamp.toString()+location.toString()+urlFull.toString());
 
