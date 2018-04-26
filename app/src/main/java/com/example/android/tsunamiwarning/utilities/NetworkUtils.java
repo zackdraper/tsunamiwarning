@@ -15,6 +15,9 @@
  */
 package com.example.android.tsunamiwarning.utilities;
 
+import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 
 import java.io.BufferedReader;
@@ -36,6 +39,13 @@ public final class NetworkUtils {
             "https://www.tsunami.gov/events/js/previous.js";
 
     final static String QUERY_PARAM = "q";
+
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null;
+    }
 
     /**
      * Builds the url for the NTWC previous 40 list

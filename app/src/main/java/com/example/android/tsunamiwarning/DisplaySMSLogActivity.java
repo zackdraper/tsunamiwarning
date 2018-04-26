@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.tsunamiwarning.utilities.DividerItemDecoration;
+import com.example.android.tsunamiwarning.utilities.NetworkUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,7 +84,7 @@ public class DisplaySMSLogActivity extends AppCompatActivity
     @Override
     public void onListItemClick(int clickedItemIndex, String tweet) {
 
-        if (isNetworkAvailable()) {
+        if (NetworkUtils.isNetworkAvailable(this)) {
 
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(tweet));
             startActivity(browserIntent);
@@ -96,13 +97,6 @@ public class DisplaySMSLogActivity extends AppCompatActivity
             mTsunamiMessage.setText("No Internet Connection");
 
         }
-    }
-
-    private boolean isNetworkAvailable() {
-        ConnectivityManager connectivityManager
-                = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null;
     }
 
     public void showEntryMessage() {
@@ -164,6 +158,12 @@ public class DisplaySMSLogActivity extends AppCompatActivity
 
         mAdapter = new QuakeEventAdapter(SMSData, this);
         mSMSList.setAdapter(mAdapter);
+
+        //save last know location for alarm
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("smsLastEvent", SMSData.get(0).toString() );
+        editor.apply();
 
     }
 
@@ -253,6 +253,7 @@ public class DisplaySMSLogActivity extends AppCompatActivity
             mLoadingIndicator.setVisibility(View.INVISIBLE);
 
             showSMSMessages(SMSData);
+
         }
 
     }

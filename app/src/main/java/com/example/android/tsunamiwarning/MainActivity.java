@@ -69,13 +69,13 @@ public class MainActivity extends AppCompatActivity
 
         //getLocationData();
 
-        TsunamiAlarm_beta tsunamiAlarm = new TsunamiAlarm_beta();
+        //TsunamiAlarm_beta tsunamiAlarm = new TsunamiAlarm_beta();
 
-        if (isNetworkAvailable()) {
+        if (NetworkUtils.isNetworkAvailable(this)) {
             quakeListDiscription(mDescription);
             loadNtwcMessages();
             //startTsunamiAlarm();
-            tsunamiAlarm.setAlarm(this);
+            //tsunamiAlarm.setAlarm(this);
         } else {
             showErrorMessage();
         }

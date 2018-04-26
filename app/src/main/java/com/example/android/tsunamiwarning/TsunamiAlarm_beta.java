@@ -39,7 +39,7 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
         Log.d(TAG, "Alarm Executed");
 
         try {
-            //Retrieve last location
+            //Retrieve last quake location
             SharedPreferences ntwcevents = PreferenceManager.getDefaultSharedPreferences(context);
             String savedEventsString = ntwcevents.getString("jsonNtwcEvents", null);
 
@@ -48,54 +48,45 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
             JSONObject oldEvent = oldEvents.getJSONObject(0);
             String locationOld = oldEvent.getString("quakeLocation");
 
-            // Get new events list
-            URL ntwc_pre40 = NetworkUtils.getNTWCurl();
+            String locationNew = "";
+            String magnitude = "";
+            String datestamp = "";
 
-            String jsonNtwcResponse = NetworkUtils
-                    .getResponseFromHttpUrl(ntwc_pre40);
+            boolean new_quake_data = false;
+            // Get new events list from data if network available
+            if (NetworkUtils.isNetworkAvailable(context)) {
+                URL ntwc_pre40 = NetworkUtils.getNTWCurl();
 
-            JSONObject newJson = new JSONObject("{\n" + jsonNtwcResponse);
-            JSONArray newEvents = newJson.getJSONArray("event");
-            JSONObject newEvent = newEvents.getJSONObject(0);
-            String locationNew = newEvent.getString("quakeLocation");
+                String jsonNtwcResponse = NetworkUtils
+                        .getResponseFromHttpUrl(ntwc_pre40);
 
-            if (! locationOld.equalsIgnoreCase(locationNew)) {
-                Log.d(TAG, "No New Quakes");
-            } else {
-                Log.d(TAG, "New Quake!");
+                JSONObject newJson = new JSONObject("{\n" + jsonNtwcResponse);
+                JSONArray newEvents = newJson.getJSONArray("event");
+                JSONObject newEvent = newEvents.getJSONObject(0);
+                locationNew = newEvent.getString("quakeLocation");
 
-                String magnitude = newEvent.getString("magnitude");
-                String datestamp = newEvent.getString("issueTime");
+                magnitude = newEvent.getString("magnitude");
+                datestamp = newEvent.getString("issueTime");
 
-                NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
-                        .setSmallIcon(R.drawable.ic_warning)
-                        .setContentTitle("NEW MESSAGE FROM NTWC")
-                        .setContentText(magnitude + " " + locationNew + " " + datestamp)
-                        .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                new_quake_data = ! locationOld.equalsIgnoreCase(locationNew);
 
-                NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-                notificationManager.notify(0, mBuilder.build());
-
-                if (Float.parseFloat(magnitude) > 7.5) {
-                    //Log.d(TAG, "Push Alarm");
-                    //Create an offset from the current time in which the activity_receiver_alarm will go off.
-                    Calendar cal = Calendar.getInstance();
-                    cal.add(Calendar.SECOND, 1);
-
-                    String tsunami_info = magnitude + "\n" + locationNew;
-
-                    //Create a new PendingIntent and add it to the AlarmManager
-                    Intent intent_alert = new Intent(context, AlarmReceiverActivity.class);
-                    intent_alert.putExtra("tsunami_info", tsunami_info);
-                    PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                            12345, intent, PendingIntent.FLAG_CANCEL_CURRENT);
-                    AlarmManager am =
-                            (AlarmManager) context.getSystemService (Activity.ALARM_SERVICE);
-                    am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
-                            pendingIntent);
-
-                }
+                raiseAlarm(context,intent,magnitude,locationNew,datestamp);
             }
+
+            //check sms list
+            boolean new_quake_sms = false;
+
+            SharedPreferences ntwcevents_sms = PreferenceManager.getDefaultSharedPreferences(context);
+            String smslastevent = ntwcevents_sms.getString("smsLastEvent", null);
+            JSONArray newSMSEvent = new JSONArray(smslastevent);
+
+            SharedPreferences twittercode = PreferenceManager.getDefaultSharedPreferences(context);
+            String twitcode = twittercode.getString("twitter_code", null);
+
+            magnitude = newSMSEvent.get(0).toString();
+
+            //smsdata = DisplaySMSLogActivity.fetchSMSMessages().execute(twitcode);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -105,6 +96,41 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
         //Toast.makeText(context, "Alarm !!!!!!!!!!", Toast.LENGTH_LONG).show(); // For example
 
         wl.release();
+    }
+
+    public void raiseAlarm(Context context,Intent intent, String magnitude,String locationNew,String datestamp) {
+
+        Log.d(TAG, "New Quake!");
+
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_warning)
+                .setContentTitle("NEW MESSAGE FROM NTWC")
+                .setContentText(magnitude + " " + locationNew + " " + datestamp)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.notify(0, mBuilder.build());
+
+        if (Float.parseFloat(magnitude) > 4.0) {
+            //Log.d(TAG, "Push Alarm");
+            //Create an offset from the current time in which the activity_receiver_alarm will go off.
+            Calendar cal = Calendar.getInstance();
+            cal.add(Calendar.SECOND, 1);
+
+            String tsunami_info = magnitude + "\n" + locationNew;
+
+            //Create a new PendingIntent and add it to the AlarmManager
+            Intent intent_alert = new Intent(context, AlarmReceiverActivity.class);
+            intent_alert.putExtra("tsunami_info", tsunami_info);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context,
+                    12345, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+            AlarmManager am =
+                    (AlarmManager) context.getSystemService (Activity.ALARM_SERVICE);
+            am.set(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(),
+                    pendingIntent);
+
+        }
+
     }
 
     public void setAlarm(Context context)

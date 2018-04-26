@@ -14,7 +14,7 @@
             android:id="@+id/description_item"
             layout="@layout/quake_event_list_item"
             android:layout_width="match_parent"
-            android:layout_height="125dp"></include>
+            android:layout_height="135dp"></include>
 
     </TableRow>
 

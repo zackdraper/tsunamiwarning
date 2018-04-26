@@ -7,9 +7,10 @@
 
     <ImageView
         android:id="@+id/tsunami_sign"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:layout_centerInParent="true"
         android:contentDescription="@string/tsunami_sign"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:src="@drawable/iso_tsunami_msign" />
 
     <TextView
