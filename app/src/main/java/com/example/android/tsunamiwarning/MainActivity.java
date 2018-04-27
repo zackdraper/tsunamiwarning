@@ -1,8 +1,5 @@
 package com.example.android.tsunamiwarning;
 
-import android.app.Activity;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
@@ -24,7 +21,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.example.android.tsunamiwarning.TsunamiAlarm.TsunamiAlarmService;
 import com.example.android.tsunamiwarning.utilities.DividerItemDecoration;
@@ -74,7 +70,7 @@ public class MainActivity extends AppCompatActivity
         if (NetworkUtils.isNetworkAvailable(this)) {
             quakeListDiscription(mDescription);
             loadNtwcMessages();
-            //startTsunamiAlarm();
+            startTsunamiAlarm();
             //tsunamiAlarm.setAlarm(this);
         } else {
             showErrorMessage();
@@ -331,9 +327,9 @@ public class MainActivity extends AppCompatActivity
         JobScheduler jobScheduler = (JobScheduler)getSystemService(JOB_SCHEDULER_SERVICE);
         int resultCode = jobScheduler.schedule(jobInfo);
         if (resultCode == JobScheduler.RESULT_SUCCESS) {
-            //Log.d(TAG, "Job scheduled!");
+            Log.d(TAG, "Job scheduled!");
         } else {
-            //Log.d(TAG, "Job not scheduled");
+            Log.d(TAG, "Job not scheduled");
         }
     }
 

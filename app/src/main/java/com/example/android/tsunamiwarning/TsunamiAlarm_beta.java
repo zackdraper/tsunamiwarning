@@ -52,25 +52,35 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
             String magnitude = "";
             String datestamp = "";
 
-            boolean new_quake_data = false;
             // Get new events list from data if network available
             if (NetworkUtils.isNetworkAvailable(context)) {
                 URL ntwc_pre40 = NetworkUtils.getNTWCurl();
 
-                String jsonNtwcResponse = NetworkUtils
-                        .getResponseFromHttpUrl(ntwc_pre40);
+                String jsonNtwcResponse = "";
+                try {
+                    jsonNtwcResponse = NetworkUtils
+                            .getResponseFromHttpUrl(ntwc_pre40);;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    jsonNtwcResponse = "";
 
-                JSONObject newJson = new JSONObject("{\n" + jsonNtwcResponse);
-                JSONArray newEvents = newJson.getJSONArray("event");
-                JSONObject newEvent = newEvents.getJSONObject(0);
-                locationNew = newEvent.getString("quakeLocation");
+                }
 
-                magnitude = newEvent.getString("magnitude");
-                datestamp = newEvent.getString("issueTime");
+                if (jsonNtwcResponse.length() > 5) {
+                    JSONObject newJson = new JSONObject("{\n" + jsonNtwcResponse);
+                    JSONArray newEvents = newJson.getJSONArray("event");
+                    JSONObject newEvent = newEvents.getJSONObject(0);
+                    locationNew = newEvent.getString("quakeLocation");
 
-                new_quake_data = ! locationOld.equalsIgnoreCase(locationNew);
+                    magnitude = newEvent.getString("magnitude");
+                    datestamp = newEvent.getString("issueTime");
 
-                raiseAlarm(context,intent,magnitude,locationNew,datestamp);
+                    boolean new_quake_data = (!locationOld.equalsIgnoreCase(locationNew));
+
+                    if (new_quake_data) {
+                        raiseAlarm(context, intent, magnitude, locationNew, datestamp);
+                    }
+                }
             }
 
             //check sms list
@@ -78,14 +88,22 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
 
             SharedPreferences ntwcevents_sms = PreferenceManager.getDefaultSharedPreferences(context);
             String smslastevent = ntwcevents_sms.getString("smsLastEvent", null);
-            JSONArray newSMSEvent = new JSONArray(smslastevent);
+            JSONArray oldSMSEvent = new JSONArray(smslastevent);
 
             SharedPreferences twittercode = PreferenceManager.getDefaultSharedPreferences(context);
             String twitcode = twittercode.getString("twitter_code", null);
 
-            magnitude = newSMSEvent.get(0).toString();
+            magnitude = oldSMSEvent.get(0).toString();
+            locationNew = oldSMSEvent.get(1).toString();
+            datestamp = oldSMSEvent.get(2).toString();
+
+            Log.d(TAG, magnitude+locationNew+datestamp);
 
             //smsdata = DisplaySMSLogActivity.fetchSMSMessages().execute(twitcode);
+
+            if ( new_quake_sms ) {
+                raiseAlarm(context,intent,magnitude,locationNew,datestamp);
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -139,7 +157,7 @@ public class TsunamiAlarm_beta extends BroadcastReceiver
         AlarmManager am =( AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
         Intent i = new Intent(context, TsunamiAlarm_beta.class);
         PendingIntent pi = PendingIntent.getBroadcast(context, 0, i, 0);
-        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 15, pi); // Millisec * Second * Minute
+        am.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 1000 * 60, pi); // Millisec * Second * Minute
     }
 
     public void cancelAlarm(Context context)
